@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sobrepor Imagem com Marca d'Água</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    input[type="file"] {
+      margin: 10px 0;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    canvas {
+      border: 1px solid #000;
+      display: block;
+      margin: 10px auto;
+      width: 100%;
+      height: auto;
+    }
+
+    #download {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    #download:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Sobrepor Imagem (Opinião)</h2>
+    <input type="file" id="upload" accept="image/*">
+    <canvas id="canvas"></canvas>
+    <button id="download" style="display:none;">📥 Baixar Imagem</button>
+  </div>
+
+  <script>
+    const upload = document.getElementById('upload');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const downloadBtn = document.getElementById('download');
+
+    const overlaySrc = 'marca-dagua2.png';
+    const overlayImage = new Image();
+    overlayImage.src = overlaySrc;
+
+    upload.addEventListener('change', function (event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        const baseImage = new Image();
+        baseImage.onload = function () {
+          canvas.width = baseImage.width;
+          canvas.height = baseImage.height;
+
+          ctx.drawImage(baseImage, 0, 0);
+
+          overlayImage.onload = function () {
+            ctx.drawImage(overlayImage, 0, 0, baseImage.width, baseImage.height);
+            downloadBtn.style.display = 'inline-block';
+          };
+
+          if (overlayImage.complete) {
+            ctx.drawImage(overlayImage, 0, 0, baseImage.width, baseImage.height);
+            downloadBtn.style.display = 'inline-block';
+          }
+        };
+        baseImage.src = e.target.result;
+      };
+
+      reader.readAsDataURL(file);
+    });
+
+    downloadBtn.addEventListener('click', function () {
+      const link = document.createElement('a');
+      link.download = 'imagem_com_marca.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  </script>
+</body>
+</html>
